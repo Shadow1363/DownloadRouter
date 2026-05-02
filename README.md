@@ -24,8 +24,8 @@ Downloads are intercepted before the filename is determined. The extension check
 
 | Priority | Match                     | Folder                 |
 | -------- | ------------------------- | ---------------------- |
-| 1        | `gameassets.com` (domain) | `Downloads/gameassets` |
-| 2        | `.png` (extension)        | `Downloads/pictures`   |
+| 1        | `gameassets.com` (domain) | `/gameassets` |
+| 2        | `.png` (extension)        | `/pictures`   |
 
 A `.png` downloaded from `gameassets.com` lands in `Downloads/gameassets` — P1 wins.
 
