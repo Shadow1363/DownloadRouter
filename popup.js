@@ -26,6 +26,11 @@ chrome.storage.sync.get({ rules: [] }, ({ rules: saved }) => {
   renderRules();
 });
 
+if (document.fonts?.ready) {
+  document.fonts.ready.then(() => scheduleRulesContainerSizing());
+}
+window.addEventListener("load", () => scheduleRulesContainerSizing());
+
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderRules() {
   // Remove all rule cards (keep empty state)
@@ -101,6 +106,38 @@ function renderRules() {
     el.addEventListener("change", handleAction);
     el.addEventListener("click", handleAction);
   });
+
+  scheduleRulesContainerSizing();
+}
+
+function scheduleRulesContainerSizing() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => updateRulesContainerSizing());
+  });
+}
+
+function updateRulesContainerSizing() {
+  const cards = Array.from(container.querySelectorAll(".rule-card"));
+
+  if (cards.length === 0) {
+    container.style.maxHeight = "";
+    return;
+  }
+
+  const styles = getComputedStyle(container);
+  const paddingTop = parseFloat(styles.paddingTop) || 0;
+  const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+  const gap = parseFloat(styles.rowGap || styles.gap) || 0;
+
+  const visibleCount = Math.min(cards.length, 5);
+  let maxHeight =
+    paddingTop + paddingBottom + gap * Math.max(0, visibleCount - 1);
+
+  for (let i = 0; i < visibleCount; i++) {
+    maxHeight += cards[i].getBoundingClientRect().height;
+  }
+
+  container.style.maxHeight = `${Math.ceil(maxHeight)}px`;
 }
 
 function handleAction(e) {
@@ -211,6 +248,7 @@ function openModal(id = null) {
     .querySelector(`.seg-btn[data-type="${selectedType}"]`)
     .classList.add("active");
   updateTypeUI();
+  document.body.classList.add("modal-open");
   backdrop.classList.add("open");
   setTimeout(() => ruleValueInput.focus(), 200);
 }
@@ -221,6 +259,7 @@ function openEditModal(id) {
 
 function closeModal() {
   backdrop.classList.remove("open");
+  document.body.classList.remove("modal-open");
   editingId = null;
 }
 

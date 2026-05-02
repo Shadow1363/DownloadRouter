@@ -22,8 +22,8 @@ Downloads are intercepted before the filename is determined. The extension check
 
 **Example:**
 
-| Priority | Match                     | Folder                 |
-| -------- | ------------------------- | ---------------------- |
+| Priority | Match                     | Folder        |
+| -------- | ------------------------- | ------------- |
 | 1        | `gameassets.com` (domain) | `/gameassets` |
 | 2        | `.png` (extension)        | `/pictures`   |
 
@@ -43,6 +43,7 @@ A `.png` downloaded from `gameassets.com` lands in `Downloads/gameassets` — P1
 - [ ] UI improvements
 - [ ] Export Rules to JSON
 - [ ] More file options to download with Router (.pdf, .docx, .xlsx, etc.)
+- [ ] Other browsers support (Firefox, Safari, etc.)
 
 ## Credits
 
