@@ -41,8 +41,8 @@ A `.png` downloaded from `gameassets.com` lands in `Downloads/gameassets` — P1
 - [ ] Support saving outside the default Downloads folder
 - [ ] Light & Dark mode
 - [ ] UI improvements
-- [] Export Rules to JSON
-- [] More file options to download with Router (.pdf, .docx, .xlsx, etc.)
+- [ ] Export Rules to JSON
+- [ ] More file options to download with Router (.pdf, .docx, .xlsx, etc.)
 
 ## Credits
 
