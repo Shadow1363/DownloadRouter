@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download Router</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0d0f12;
+        --surface: #161920;
+        --surface2: #1e2229;
+        --border: #2a2f3a;
+        --accent: #00e5a0;
+        --accent-dim: rgba(0, 229, 160, 0.12);
+        --accent2: #5b8cff;
+        --danger: #ff5b6e;
+        --danger-dim: rgba(255, 91, 110, 0.12);
+        --text: #e8ecf4;
+        --muted: #6b7385;
+        --mono: "Space Mono", monospace;
+        --sans: "DM Sans", sans-serif;
+      }
+
+      body {
+        width: 480px;
+        min-height: 520px;
+        max-height: 680px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 13px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* HEADER */
+      header {
+        padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--surface);
+        flex-shrink: 0;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--accent);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      .logo-text {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--text);
+        text-transform: uppercase;
+      }
+
+      .logo-sub {
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--accent);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 1px;
+      }
+
+      .add-btn {
+        background: var(--accent);
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        transition: opacity 0.15s;
+      }
+      .add-btn:hover {
+        opacity: 0.85;
+      }
+
+      /* RULE LIST */
+      #rules-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+
+      .empty-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: var(--muted);
+        padding: 40px 0;
+      }
+      .empty-icon {
+        font-size: 32px;
+        opacity: 0.4;
+      }
+      .empty-label {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      /* RULE CARD */
+      .rule-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: border-color 0.15s;
+        cursor: grab;
+        position: relative;
+      }
+      .rule-card:hover {
+        border-color: #3a4050;
+      }
+      .rule-card.dragging {
+        opacity: 0.4;
+        border-style: dashed;
+      }
+      .rule-card.drag-over {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .rule-card.disabled {
+        opacity: 0.45;
+      }
+
+      .drag-handle {
+        color: var(--muted);
+        font-size: 14px;
+        cursor: grab;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+
+      .priority-badge {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+      }
+
+      .rule-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .rule-type-value {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 3px;
+      }
+
+      .type-chip {
+        font-family: var(--mono);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+      .type-chip.domain {
+        background: rgba(91, 140, 255, 0.15);
+        color: var(--accent2);
+      }
+      .type-chip.extension {
+        background: rgba(0, 229, 160, 0.12);
+        color: var(--accent);
+      }
+      .type-chip.pattern {
+        background: rgba(255, 200, 60, 0.12);
+        color: #ffc83c;
+      }
+
+      .rule-value {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .rule-folder {
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .rule-folder span {
+        color: var(--text);
+      }
+
+      .rule-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .toggle {
+        position: relative;
+        width: 30px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-track {
+        position: absolute;
+        inset: 0;
+        background: var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .toggle input:checked + .toggle-track {
+        background: var(--accent);
+      }
+      .toggle-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s;
+        pointer-events: none;
+      }
+      .toggle input:checked ~ .toggle-thumb {
+        transform: translateX(14px);
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 14px;
+        padding: 3px;
+        border-radius: 4px;
+        transition:
+          color 0.15s,
+          background 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .icon-btn:hover {
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .icon-btn.danger:hover {
+        color: var(--danger);
+        background: var(--danger-dim);
+      }
+
+      /* MODAL */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-backdrop.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        width: 420px;
+        padding: 24px;
+        transform: translateY(8px);
+        transition: transform 0.2s;
+      }
+      .modal-backdrop.open .modal {
+        transform: translateY(0);
+      }
+
+      .modal-title {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 20px;
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      .seg-control {
+        display: flex;
+        gap: 4px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 3px;
+      }
+      .seg-btn {
+        flex: 1;
+        padding: 6px 0;
+        border: none;
+        background: none;
+        border-radius: 6px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .seg-btn.active {
+        background: var(--accent);
+        color: #000;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      input:focus {
+        border-color: var(--accent);
+      }
+      input::placeholder {
+        color: var(--muted);
+      }
+
+      .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 5px;
+        line-height: 1.4;
+      }
+
+      .modal-footer {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 24px;
+      }
+
+      .btn {
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        transition: opacity 0.15s;
+      }
+      .btn-ghost {
+        background: none;
+        color: var(--muted);
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #000;
+        border-color: transparent;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      /* TOAST */
+      #toast {
+        position: fixed;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        opacity: 0;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 200;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <div class="logo-icon">⬇</div>
+        <div>
+          <div class="logo-text">Download Router</div>
+          <div class="logo-sub">Priority Rules</div>
+        </div>
+      </div>
+      <button class="add-btn" id="open-modal-btn">+ New Rule</button>
+    </header>
+
+    <div id="rules-container">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📂</div>
+        <div class="empty-label">No rules yet</div>
+        <div
+          style="
+            color: var(--muted);
+            font-size: 11px;
+            text-align: center;
+            max-width: 200px;
+            line-height: 1.5;
+          "
+        >
+          Add a rule to automatically route downloads to specific folders.
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <div class="modal-title" id="modal-title">New Rule</div>
+
+        <div class="field">
+          <label>Match Type</label>
+          <div class="seg-control">
+            <button class="seg-btn active" data-type="domain">Domain</button>
+            <button class="seg-btn" data-type="extension">Extension</button>
+            <button class="seg-btn" data-type="pattern">Pattern</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label id="value-label">Domain</label>
+          <input
+            type="text"
+            id="rule-value"
+            placeholder="e.g. gameassets.com"
+          />
+          <div class="hint" id="rule-hint">
+            Match any download from this domain (subdomains included).
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Save To Folder</label>
+          <input type="text" id="rule-folder" placeholder="e.g. /gameassets" />
+          <div class="hint">
+            Relative to your default Downloads folder. Use forward slashes.
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Priority</label>
+          <input type="number" id="rule-priority" min="1" max="999" value="1" />
+          <div class="hint">
+            Lower number = higher priority. Rules are checked in order.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-ghost" id="cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="save-btn">Save Rule</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
