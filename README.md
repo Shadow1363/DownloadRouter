@@ -47,7 +47,9 @@ A `.png` downloaded from `gameassets.com` lands in `Downloads/gameassets` — P1
 - [ ] UI improvements
 - [ ] Export Rules to JSON
 - [ ] More file options to download with Router (.pdf, .docx, .xlsx, etc.)
-- [ ] Other browsers support (Firefox, Safari, etc.)
+- [ ] Other browsers support
+  - [x] Firefox
+  - [ ] Safari
 
 ## Credits
 
