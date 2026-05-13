@@ -1,11 +1,38 @@
 // Download Router - Background Service Worker
 
 // ── CONTEXT MENU ─────────────────────────────────────────────────────────────
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   chrome.contextMenus.create({
     id: "save-with-router",
     title: "Save Image with Router", // ⬇
     contexts: ["image"],
+  });
+
+  if (details?.reason !== "install") return;
+
+  chrome.storage.sync.get({ rules: [] }, ({ rules }) => {
+    if (Array.isArray(rules) && rules.length > 0) return;
+
+    chrome.storage.sync.set({
+      rules: [
+        {
+          id: crypto.randomUUID(),
+          type: "extension",
+          value: ".pdf",
+          folder: "documents",
+          priority: 1,
+          enabled: true,
+        },
+        {
+          id: crypto.randomUUID(),
+          type: "domain",
+          value: "unsplash.com",
+          folder: "images",
+          priority: 2,
+          enabled: true,
+        },
+      ],
+    });
   });
 });
 
