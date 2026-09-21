@@ -1,15 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Download Router</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
-      rel="stylesheet"
-    />
+    <script src="theme.js"></script>
     <style>
       *,
       *::before,
@@ -19,20 +14,54 @@
         padding: 0;
       }
 
+      /* Remote webfonts are blocked by the extension CSP, so these are local
+         stacks chosen to keep the original mono/sans pairing. */
       :root {
+        --mono:
+          ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono", Menlo,
+          Consolas, monospace;
+        --sans:
+          system-ui, -apple-system, "Segoe UI", Ubuntu, Roboto, sans-serif;
+
         --bg: #0d0f12;
         --surface: #161920;
         --surface2: #1e2229;
         --border: #2a2f3a;
+        --border-hover: #3a4050;
         --accent: #00e5a0;
+        --accent-fg: #06120d;
         --accent-dim: rgba(0, 229, 160, 0.12);
-        --accent2: #5b8cff;
+        --accent2: #5f8fff;
+        --accent2-dim: rgba(91, 140, 255, 0.15);
+        --warn: #ffc83c;
+        --warn-dim: rgba(255, 200, 60, 0.12);
         --danger: #ff5b6e;
         --danger-dim: rgba(255, 91, 110, 0.12);
         --text: #e8ecf4;
-        --muted: #6b7385;
-        --mono: "JetBrains Mono", monospace;
-        --sans: "Ubuntu", sans-serif;
+        --muted: #7b8395;
+        --scrim: rgba(0, 0, 0, 0.6);
+        --thumb: #fff;
+      }
+
+      :root[data-theme="light"] {
+        --bg: #eef0f4;
+        --surface: #ffffff;
+        --surface2: #e7eaf0;
+        --border: #d3d8e2;
+        --border-hover: #b3bbc9;
+        --accent: #007657;
+        --accent-fg: #ffffff;
+        --accent-dim: rgba(0, 118, 87, 0.1);
+        --accent2: #3a5fc8;
+        --accent2-dim: rgba(58, 95, 200, 0.12);
+        --warn: #8a6100;
+        --warn-dim: rgba(138, 97, 0, 0.12);
+        --danger: #c62438;
+        --danger-dim: rgba(198, 36, 56, 0.1);
+        --text: #14171d;
+        --muted: #626c80;
+        --scrim: rgba(20, 23, 29, 0.45);
+        --thumb: #fff;
       }
 
       body {
@@ -47,7 +76,19 @@
         flex-direction: column;
       }
       body.modal-open {
-        min-height: 520px;
+        min-height: 560px;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+        }
       }
 
       /* HEADER */
@@ -65,14 +106,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-      }
-
-      .logo-icon {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
 
       .logo-icon img {
@@ -99,9 +132,15 @@
         margin-top: 1px;
       }
 
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
       .add-btn {
         background: var(--accent);
-        color: #000;
+        color: var(--accent-fg);
         border: none;
         border-radius: 6px;
         padding: 6px 14px;
@@ -146,20 +185,24 @@
         color: var(--muted);
         padding: 40px 0;
       }
-      .empty-icon {
-        font-size: 32px;
-        opacity: 0.4;
-      }
       .empty-icon svg {
         width: 34px;
         height: 34px;
         display: block;
+        opacity: 0.4;
       }
       .empty-label {
         font-family: var(--mono);
         font-size: 11px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+      }
+      .empty-help {
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+        max-width: 220px;
+        line-height: 1.5;
       }
 
       /* RULE CARD */
@@ -171,12 +214,14 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        transition: border-color 0.15s;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
         cursor: grab;
         position: relative;
       }
       .rule-card:hover {
-        border-color: #3a4050;
+        border-color: var(--border-hover);
       }
       .rule-card.dragging {
         opacity: 0.4;
@@ -237,16 +282,16 @@
         flex-shrink: 0;
       }
       .type-chip.domain {
-        background: rgba(91, 140, 255, 0.15);
+        background: var(--accent2-dim);
         color: var(--accent2);
       }
       .type-chip.extension {
-        background: rgba(0, 229, 160, 0.12);
+        background: var(--accent-dim);
         color: var(--accent);
       }
       .type-chip.pattern {
-        background: rgba(255, 200, 60, 0.12);
-        color: #ffc83c;
+        background: var(--warn-dim);
+        color: var(--warn);
       }
 
       .rule-value {
@@ -283,20 +328,28 @@
         flex-shrink: 0;
       }
       .toggle input {
+        position: absolute;
+        inset: 0;
         opacity: 0;
-        width: 0;
-        height: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        cursor: pointer;
+        z-index: 2;
       }
       .toggle-track {
         position: absolute;
         inset: 0;
         background: var(--border);
         border-radius: 10px;
-        cursor: pointer;
         transition: background 0.2s;
       }
-      .toggle input:checked + .toggle-track {
+      .toggle input:checked ~ .toggle-track {
         background: var(--accent);
+      }
+      .toggle input:focus-visible ~ .toggle-track {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
       }
       .toggle-thumb {
         position: absolute;
@@ -304,7 +357,7 @@
         left: 2px;
         width: 12px;
         height: 12px;
-        background: #fff;
+        background: var(--thumb);
         border-radius: 50%;
         transition: transform 0.2s;
         pointer-events: none;
@@ -342,11 +395,66 @@
         background: var(--danger-dim);
       }
 
+      /* FOOTER */
+      footer {
+        margin-top: auto;
+        padding: 10px 16px;
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .rule-count {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .footer-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .text-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .text-btn svg {
+        width: 12px;
+        height: 12px;
+        display: block;
+      }
+      .text-btn:hover {
+        color: var(--text);
+        border-color: var(--border-hover);
+      }
+
       /* MODAL */
       .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: var(--scrim);
         backdrop-filter: blur(4px);
         display: flex;
         align-items: center;
@@ -424,11 +532,12 @@
       }
       .seg-btn.active {
         background: var(--accent);
-        color: #000;
+        color: var(--accent-fg);
       }
 
       input[type="text"],
-      input[type="number"] {
+      input[type="number"],
+      textarea {
         width: 100%;
         background: var(--surface2);
         border: 1px solid var(--border);
@@ -440,11 +549,22 @@
         outline: none;
         transition: border-color 0.15s;
       }
-      input:focus {
+      input:focus,
+      textarea:focus {
         border-color: var(--accent);
       }
-      input::placeholder {
+      input::placeholder,
+      textarea::placeholder {
         color: var(--muted);
+      }
+      textarea {
+        min-height: 130px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      textarea.drop-active {
+        border-color: var(--accent);
+        background: var(--accent-dim);
       }
 
       .hint {
@@ -452,6 +572,30 @@
         color: var(--muted);
         margin-top: 5px;
         line-height: 1.4;
+      }
+      .hint.error {
+        color: var(--danger);
+      }
+      .hint code {
+        font-family: var(--mono);
+        color: var(--text);
+      }
+
+      .invalid {
+        border-color: var(--danger) !important;
+        animation: shake 0.3s;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px);
+        }
       }
 
       .modal-footer {
@@ -481,7 +625,7 @@
       }
       .btn-primary {
         background: var(--accent);
-        color: #000;
+        color: var(--accent-fg);
         border-color: transparent;
       }
       .btn-primary:hover {
@@ -526,24 +670,24 @@
           <div class="logo-sub">Priority Rules</div>
         </div>
       </div>
-      <button class="add-btn" id="open-modal-btn">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-plus-icon lucide-plus"
-        >
-          <path d="M5 12h14" />
-          <path d="M12 5v14" />
-        </svg>
-        New Rule
-      </button>
+      <div class="header-actions">
+        <button class="icon-btn" id="theme-btn" title="Theme: system"></button>
+        <button class="add-btn" id="open-modal-btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+          </svg>
+          New Rule
+        </button>
+      </div>
     </header>
 
     <div id="rules-container">
@@ -551,15 +695,12 @@
         <div class="empty-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="lucide lucide-folder-open-icon lucide-folder-open"
           >
             <path
               d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
@@ -567,23 +708,58 @@
           </svg>
         </div>
         <div class="empty-label">No rules yet</div>
-        <div
-          style="
-            color: var(--muted);
-            font-size: 11px;
-            text-align: center;
-            max-width: 200px;
-            line-height: 1.5;
-          "
-        >
-          Add a rule to automatically route downloads to specific folders.
+        <div class="empty-help">
+          Add a rule to send downloads straight to the folder they belong in.
         </div>
       </div>
     </div>
 
-    <!-- MODAL -->
+    <footer>
+      <div class="rule-count" id="rule-count">0 rules</div>
+      <div class="footer-actions">
+        <button class="text-btn" id="import-btn" title="Import rules from JSON">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3v12" />
+            <path d="m8 11 4 4 4-4" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          </svg>
+          Import
+        </button>
+        <button class="text-btn" id="export-btn" title="Export rules to JSON">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 15V3" />
+            <path d="m8 7 4-4 4 4" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          </svg>
+          Export
+        </button>
+      </div>
+    </footer>
+
+    <!-- RULE MODAL -->
     <div class="modal-backdrop" id="modal-backdrop">
-      <div class="modal">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
         <div class="modal-title" id="modal-title">New Rule</div>
 
         <div class="field">
@@ -596,30 +772,30 @@
         </div>
 
         <div class="field">
-          <label id="value-label">Domain</label>
+          <label id="value-label" for="rule-value">Domain</label>
           <input
             type="text"
             id="rule-value"
             placeholder="e.g. gameassets.com"
           />
           <div class="hint" id="rule-hint">
-            Match any download from this domain (subdomains included).
+            Matches any download from this domain, subdomains included.
           </div>
         </div>
 
         <div class="field">
-          <label>Save To Folder</label>
-          <input type="text" id="rule-folder" placeholder="e.g. /gameassets" />
-          <div class="hint">
-            Relative to your default Downloads folder. Use forward slashes.
+          <label for="rule-folder">Save To Folder</label>
+          <input type="text" id="rule-folder" placeholder="e.g. gameassets" />
+          <div class="hint" id="folder-hint">
+            Relative to your Downloads folder. Use forward slashes to nest.
           </div>
         </div>
 
         <div class="field">
-          <label>Priority</label>
+          <label for="rule-priority">Priority</label>
           <input type="number" id="rule-priority" min="1" max="999" value="1" />
           <div class="hint">
-            Lower number = higher priority. Rules are checked in order.
+            Lower number wins when more than one rule matches.
           </div>
         </div>
 
@@ -630,7 +806,48 @@
       </div>
     </div>
 
-    <div id="toast"></div>
+    <!-- IMPORT MODAL -->
+    <div class="modal-backdrop" id="import-backdrop">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="import-title"
+      >
+        <div class="modal-title" id="import-title">Import Rules</div>
+
+        <div class="field">
+          <label for="import-text">Rules JSON</label>
+          <textarea
+            id="import-text"
+            placeholder="Drop a .json file here, or paste its contents"
+          ></textarea>
+          <div class="hint" id="import-hint">
+            Drop an exported file onto the box, or paste the JSON.
+          </div>
+        </div>
+
+        <div class="field">
+          <label>On Import</label>
+          <div class="seg-control">
+            <button class="seg-btn active" data-mode="merge">Merge</button>
+            <button class="seg-btn" data-mode="replace">Replace All</button>
+          </div>
+          <div class="hint" id="import-mode-hint">
+            Merge keeps your current rules and appends the imported ones.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-ghost" id="import-cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="import-confirm-btn">
+            Import
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
 
     <script src="popup.js"></script>
   </body>

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Download Router",
-  "version": "1.0.5",
+  "version": "1.1.1",
   "description": "Route downloads to specific folders based on priority rules (domain, file type, filename pattern).",
   "permissions": ["downloads", "storage", "contextMenus"],
   "browser_specific_settings": {
@@ -14,18 +14,22 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "action": {
     "default_popup": "popup.html",
+    "default_title": "Download Router",
     "default_icon": {
       "16": "icons/icon16.png",
+      "32": "icons/icon48.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
   "icons": {
     "16": "icons/icon16.png",
+    "32": "icons/icon48.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   }

@@ -43,6 +43,7 @@ A `.png` downloaded from `gameassets.com` lands in `Downloads/gameassets` — P1
 ## Roadmap
 
 - [ ] Support saving outside the default Downloads folder
+- [ ] Fix as currently not working.
 - [ ] Light & Dark mode
 - [ ] UI improvements
 - [ ] Export Rules to JSON
